@@ -62,7 +62,7 @@ I also consult these resources quite frequently:
   * **Unlike F# and Scala, it doesn't make any compromise by allowing you to use OOP where convenient.** This means that from here on out, it's full steam ahead for Functional Programming - no exceptions! A brand new way of thinking and looking at how to solve problems!
   
   
-  * **Wanted another functional programming paradigm perspective away from F#.** I also considered picking up Haskell since a while back because of the once-corporate license that was present to using F#. However, since that time (about 2-3 years ago), **Microsoft has proudly open-sourced .NET Core**, which includes the F# family! Check out details [http://fsharp.org](here) and [https://dotnetfoundation.org](here)
+  * **Wanted another functional programming paradigm perspective away from F#.** I also considered picking up Haskell since a while back because of the once-corporate license that was present to using F#. However, since that time (about 2-3 years ago), **Microsoft has proudly open-sourced .NET Core**, which includes the F# family! Check out details [here](http://fsharp.org) and [here](https://dotnetfoundation.org)
   
   
   * **Because it's hipster tech.** It's nice to get first dibs on a programming language with a smaller community
