@@ -3,7 +3,7 @@
 
 <img style="text-align:center;" src="http://cdn.usefulstuff.io/2016/03/haskell-logo.jpg">
 
-I decided to pick up Haskell for the fun of learning a truly strict functional programming language besides F#, which we used at Florida International University's **Survey Programming Languages** class. 
+I decided to pick up Haskell for the fun of learning a truly strict functional programming language besides F#, which we used at Florida International University's **Survey of Programming Languages** class. 
 
 Here is a sampler of how Haskell code looks like!
 ```haskell
