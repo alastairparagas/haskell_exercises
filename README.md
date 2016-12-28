@@ -12,6 +12,16 @@ main = do
   putStrLn "Hello World!"
 ```
 
+If we wanted to be more verbose:
+```haskell
+module Main where 
+
+import Prelude (putStrLn)
+
+main :: IO()
+  Prelude.putStrLn "Hello World!"
+```
+
 ## Resources
 
 In this repository, I try to follow multiple resources, but mostly following the format of these classes:
