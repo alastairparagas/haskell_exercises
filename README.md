@@ -19,6 +19,7 @@ module Main where
 import Prelude (putStrLn)
 
 main :: IO()
+main = do
   Prelude.putStrLn "Hello World!"
 ```
 
