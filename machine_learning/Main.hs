@@ -46,21 +46,20 @@ main =
         processLines line = 
           let 
             parsedLine = (map read (words line))
-          in (init parsedLine ++ [1], last parsedLine)
+          in (init parsedLine, last parsedLine)
         in (map processLines fileLines)
     
-    -- Obtain predictionary weights provided training examples 
-    -- and learning rate
-    trainWithData :: [([Double], Double)] -> Double -> [Double]
+    -- Predict weights and intercept
+    trainWithData :: [([Double], Double)] -> Double -> ([Double], Double)
     trainWithData [] learningRate = 
-      IterativeStochasticGradient.train [] [] 0
+      IterativeStochasticGradient.train [] [] 0 0
     trainWithData 
       trainingData@((features, targetValue):xs) 
       learningRate = 
       let 
-        startingWeights = (take (length features) (repeat 120))
-        in IterativeStochasticGradient.train 
-            trainingData startingWeights learningRate
+        startingWeights = (take (length features) (repeat 0))
+      in IterativeStochasticGradient.train 
+        trainingData startingWeights 0 learningRate
         
     -- Drop the nth column (1-indexed) from input features of 
     -- training examples
@@ -73,12 +72,12 @@ main =
           in (xs ++ tail ys, targetValue)
       ) trainingExamples
   
-    -- predict new weights provided old weights and input features
-    predict :: [Double] -> [Double] -> Double
-    predict weights features = 
+    -- Provided weights, features and intercept, get target value
+    predict :: [Double] -> [Double] -> Double -> Double
+    predict weights features intercept = 
       let
         addends = zip weights features
-      in foldl (+) 0 
+      in foldl (+) intercept 
         (map (\(weight,feature) -> weight * feature) addends)
   
     in do
@@ -90,18 +89,20 @@ main =
       trainingExamples = 
         parseFileContent fileContent
 
-      trainingExamplesMod = 
-        dropColumnFromFeatures trainingExamples 1
+      trainingExamplesModified = 
+        dropColumnFromFeatures (take 2 trainingExamples) 1
 
-      weights = 
-        trainWithData trainingExamplesMod learningRate
+      (weights, intercept) = 
+        trainWithData trainingExamplesModified learningRate
 
       in do
       putStrLn "Training Examples --->"
-      mapM_ print trainingExamplesMod
+      mapM_ print trainingExamplesModified
       putStrLn "Output Weights --->"
       putStrLn $ show $ weights
+      putStrLn "Intercept --->"
+      putStrLn $ show $ intercept
       putStrLn "Target value guess for first training example --->"
       putStrLn $ show $ 
-        predict weights (fst (trainingExamplesMod !! 0))
+        predict weights (fst (trainingExamplesModified !! 0)) intercept
   
