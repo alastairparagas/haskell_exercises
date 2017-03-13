@@ -76,8 +76,8 @@ evaluateCramerParallel squareMatrix resultVector =
     
     detOriginal = detLU squareMatrix
     
-    cramersRule :: (Int, Double) -> Double
-    cramersRule (currentCol, detOriginal) = 
+    cramersRule :: Int -> Double
+    cramersRule currentCol = 
       let 
         modifyMatrixFold :: Matrix Double
                           -> Int
@@ -94,9 +94,7 @@ evaluateCramerParallel squareMatrix resultVector =
       
       in (detLU modifiedMatrix) / detOriginal
   
-  in parMap rseq cramersRule (
-    zip [1..numCols] (take numCols (repeat detOriginal))
-  )
+  in parMap rseq cramersRule [1..numCols]
   
   
 computationPrompt :: Matrix Double -> IO ()
