@@ -58,7 +58,7 @@ processCsvToMatrix filePath =
 
 verifyValidMatrix :: Matrix Double -> Bool
 verifyValidMatrix matrix = 
-  (nrows matrix == (ncols matrix + 1)) && (ncols matrix >= 2)
+  (ncols matrix == (nrows matrix + 1)) && (ncols matrix >= 2)
   
   
 matrixToSystemAndResult :: Matrix Double -> (Matrix Double, Vector Double)
@@ -84,7 +84,7 @@ evaluateCramerParallel squareMatrix resultVector =
                           -> Matrix Double
         modifyMatrixFold matrix currentRow = 
           let 
-            resultAtRow = resultVector ! currentRow 
+            resultAtRow = resultVector ! (currentRow - 1)
           in setElem 
               resultAtRow (currentRow, currentCol) matrix
         
@@ -102,15 +102,21 @@ evaluateCramerParallel squareMatrix resultVector =
 computationPrompt :: Matrix Double -> IO ()
 computationPrompt matrix = 
   let 
-    solvedXs = 
-      (uncurry evaluateCramerParallel) (
-        matrixToSystemAndResult matrix
-      )
-  in putStrLn $ show $ solvedXs
+    (system, resultVec) = matrixToSystemAndResult matrix
+    solvedXs = evaluateCramerParallel system resultVec
+    
+  in do 
+    putStrLn "Matrix --->"
+    putStrLn $ show system
+    putStrLn "Result Vector -->"
+    putStrLn $ show resultVec
+    putStrLn "Resulting Xs -->"
+    putStrLn $ show $ solvedXs
   
 
 main :: IO ()
 main = do
+  putStrLn "Please provide a file path with a valid square matrix system"
   fileName <- askForFileLocation
   matrix <- processCsvToMatrix fileName
   case (verifyValidMatrix matrix) of 
