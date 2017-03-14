@@ -71,9 +71,13 @@ matrixToSystemAndResult matrix = (
 evaluateCramerParallel :: Matrix Double -> Vector Double -> [Double]
 evaluateCramerParallel squareMatrix resultVector = 
   let
+    numeCols :: Int
     numCols = ncols squareMatrix
+    
+    numRows :: Int
     numRows = nrows squareMatrix
     
+    detOriginal :: Double
     detOriginal = detLU squareMatrix
     
     cramersRule :: Int -> Double
@@ -93,7 +97,6 @@ evaluateCramerParallel squareMatrix resultVector =
           foldl' modifyMatrixFold squareMatrix [1..numRows]
       
       in (detLU modifiedMatrix) / detOriginal
-  
   in parMap rseq cramersRule [1..numCols]
   
   
@@ -102,7 +105,6 @@ computationPrompt matrix =
   let 
     (system, resultVec) = matrixToSystemAndResult matrix
     solvedXs = evaluateCramerParallel system resultVec
-    
   in do 
     putStrLn "Matrix --->"
     putStrLn $ show system
