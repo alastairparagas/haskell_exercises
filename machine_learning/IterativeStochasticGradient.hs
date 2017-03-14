@@ -1,66 +1,86 @@
 module IterativeStochasticGradient where 
 
 import Data.List (foldl')
-import Data.Functor (fmap)
+import Numeric.AD (diff)
 
-{-
-  Train is a function that accepts a:
-  - a list of training examples that consists of a list 
-    of input features and a target value
-  - a list of starting weights for each input feature
-  - an intercept value
-  - a learning rate
-  Outputs a tuple: list of weights for each corresponding input 
-  feature and an intercept value
--}
-train 
-  :: [([Double], Double)] 
-  -> [Double] 
-  -> Double 
-  -> Double 
-  -> ([Double], Double)
-train [] [] intercept _ = 
+
+type Weight = Double
+type Feature = Double
+type Intercept = Double
+type LearningRate = Double
+type TargetValue = Double
+type TrainingExample = ([Feature], TargetValue)
+
+
+hypothesis :: [Weight] 
+            -> [Feature] 
+            -> Intercept 
+            -> Double
+hypothesis features weights intercept = 
+  foldl' (+) intercept 
+    (map 
+      (\(weight, feature) -> weight * feature) 
+      (zip weights features))
+
+
+trainManual :: LearningRate
+            -> [Feature]
+            -> TargetValue
+            -> [Weight]
+            -> Intercept
+            -> ([Weight], Intercept)
+trainManual learningRate features targetValue guessWeights guessIntercept = 
+  let
+    newIntercept :: Intercept
+    newIntercept = 
+      guessIntercept + (learningRate * errorTerm)
+      where 
+        errorTerm =
+          (targetValue - (
+            hypothesis features guessWeights guessIntercept
+          ))
+            
+    newWeights :: [Weight]
+    newWeights = 
+      foldl' determineWeight [] (zip guessWeights features)
+      where
+        determineWeight weights params@(weight, feature) = 
+          let 
+            errorTerm newWeights = 
+              (targetValue - (
+                hypothesis features newWeights newIntercept
+              ))
+            newWeight newWeights (weight, feature) = 
+              weight + (
+                learningRate * errorTerm newWeights * feature
+              )
+          in weights ++ [
+              newWeight 
+                (weights ++ drop (length weights) guessWeights) 
+                params
+              ]
+  in (newWeights, newIntercept)
+
+
+train :: [TrainingExample]
+      -> [Weight]
+      -> Intercept 
+      -> LearningRate 
+      -> Int
+      -> ([Weight], Intercept)
+train [] [] intercept _ _ = 
   ([], intercept)
-train [] startingWeights intercept _ = 
+train [] startingWeights intercept _ _ = 
   (startingWeights, intercept)
 train 
-  ((features, targetValue):xs) startingWeights intercept learningRate =
-  
+  ((features, targetValue):xs) startingWeights intercept learningRate 1 = 
   let
-    hypothesis :: [Double] -> [Double] -> Double -> Double
-    hypothesis weights features intercept = 
-      foldl' (+) intercept 
-        (fmap 
-          (\(weight, feature) -> weight * feature) 
-          (zip weights features))
-    
-    determineWeight :: [Double] -> (Double, Double) -> Double
-    determineWeight 
-      originWeights (originWeight, feature) = 
-      let
-        errorDifference = 
-          (targetValue - (hypothesis originWeights features intercept))
-      in originWeight + (learningRate * errorDifference * feature)
-    
-    determineWeightsFold :: [Double] -> (Double, Double) -> [Double]
-    determineWeightsFold newWeights params@(originWeight, feature) = 
-      newWeights ++
-      [determineWeight 
-        (newWeights ++ (drop (length newWeights) startingWeights))
-        params]
-    
-    newWeights :: [Double]
-    newWeights = 
-      foldl'  
-        (determineWeightsFold) 
-        [] 
-        (zip startingWeights features)
-    
-    newIntercept :: Double
-    newIntercept = 
-      let
-        errorDifference = 
-          (targetValue - (hypothesis startingWeights features intercept))
-      in intercept + (learningRate * errorDifference)
-  
-  in (train xs newWeights newIntercept learningRate)
+    (newWeights, newIntercept) = 
+      trainManual learningRate features targetValue startingWeights intercept
+  in train xs newWeights newIntercept learningRate 1
+train 
+  trainingSamples startingWeights intercept learningRate epoch =
+  let
+    (newWeights, newIntercept) = 
+      train trainingSamples startingWeights intercept learningRate 1
+  in train trainingSamples newWeights newIntercept learningRate (epoch - 1)

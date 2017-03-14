@@ -52,14 +52,14 @@ main =
     -- Predict weights and intercept
     trainWithData :: [([Double], Double)] -> Double -> ([Double], Double)
     trainWithData [] learningRate = 
-      IterativeStochasticGradient.train [] [] 0 0
+      IterativeStochasticGradient.train [] [] 0 0 1
     trainWithData 
       trainingData@((features, targetValue):xs) 
       learningRate = 
       let 
         startingWeights = (take (length features) (repeat 0))
       in IterativeStochasticGradient.train 
-        trainingData startingWeights 0 learningRate
+        trainingData startingWeights 0 learningRate 100
         
     -- Drop the nth column (1-indexed) from input features of 
     -- training examples
@@ -90,7 +90,7 @@ main =
         parseFileContent fileContent
 
       trainingExamplesModified = 
-        dropColumnFromFeatures (take 2 trainingExamples) 1
+        dropColumnFromFeatures (take 3 trainingExamples) 1
 
       (weights, intercept) = 
         trainWithData trainingExamplesModified learningRate
