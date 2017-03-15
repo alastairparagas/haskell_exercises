@@ -71,7 +71,7 @@ matrixToSystemAndResult matrix = (
 evaluateCramerParallel :: Matrix Double -> Vector Double -> [Double]
 evaluateCramerParallel squareMatrix resultVector = 
   let
-    numeCols :: Int
+    numCols :: Int
     numCols = ncols squareMatrix
     
     numRows :: Int
