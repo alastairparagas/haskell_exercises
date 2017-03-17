@@ -10,6 +10,7 @@ type Intercept = Double
 type LearningRate = Double
 type TargetValue = Double
 type TrainingExample = ([Feature], TargetValue)
+type Epoch = Int
 
 
 hypothesis :: [Weight] 
@@ -66,21 +67,23 @@ train :: [TrainingExample]
       -> [Weight]
       -> Intercept 
       -> LearningRate 
-      -> Int
+      -> Epoch
       -> ([Weight], Intercept)
 train [] [] intercept _ _ = 
   ([], intercept)
 train [] startingWeights intercept _ _ = 
   (startingWeights, intercept)
 train 
-  ((features, targetValue):xs) startingWeights intercept learningRate 1 = 
-  let
-    (newWeights, newIntercept) = 
-      trainManual learningRate features targetValue startingWeights intercept
-  in train xs newWeights newIntercept learningRate 1
-train 
-  trainingSamples startingWeights intercept learningRate epoch =
-  let
-    (newWeights, newIntercept) = 
-      train trainingSamples startingWeights intercept learningRate 1
-  in train trainingSamples newWeights newIntercept learningRate (epoch - 1)
+  ((features, targetValue):xs) startingWeights intercept learningRate epoch = 
+  | epoch == 1 = 
+    let
+      (newWeights, newIntercept) = 
+        trainManual learningRate features targetValue startingWeights intercept
+    in train xs newWeights newIntercept learningRate 1
+  | epoch > 1 = 
+    let
+      (newWeights, newIntercept) = 
+        train trainingSamples startingWeights intercept learningRate 1
+    in train trainingSamples newWeights newIntercept learningRate (epoch-1)
+  | otherwise = 
+    (startingWeights, intercept)
