@@ -60,7 +60,7 @@ executable machine-learning
   -- other-extensions:    
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && <4.9, 
+  build-depends:       base >=4.9 && <4.10, 
                         directory >=1.2 && <1.3, 
                         ad >= 4.3 && <4.4
   
