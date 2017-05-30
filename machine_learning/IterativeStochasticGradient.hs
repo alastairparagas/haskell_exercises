@@ -3,7 +3,6 @@ module IterativeStochasticGradient where
 import Data.List (foldl')
 import Numeric.AD (diff)
 
-
 type Weight = Double
 type Feature = Double
 type Intercept = Double
