@@ -1,4 +1,4 @@
-module CramersRule where
+module Main where
 
 import Control.Parallel.Strategies (parMap, rseq)
 import Data.Matrix 
@@ -70,7 +70,7 @@ matrixToSystemAndResult matrix = (
 
 evaluateCramerParallel :: Matrix Double -> Vector Double -> [Double]
 evaluateCramerParallel squareMatrix resultVector = 
-  let
+  {-# SCC "CRAMER" #-} let
     numCols :: Int
     numCols = ncols squareMatrix
     
@@ -97,8 +97,7 @@ evaluateCramerParallel squareMatrix resultVector =
           foldl' modifyMatrixFold squareMatrix [1..numRows]
       
       in (detLU modifiedMatrix) / detOriginal
-  in parMap rseq cramersRule [1..numCols]
-  
+  in parMap rseq cramersRule [1..numCols]  
   
 computationPrompt :: Matrix Double -> IO ()
 computationPrompt matrix = 

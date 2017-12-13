@@ -17,6 +17,7 @@ cabal-version:       >=1.10
 
 executable cramers-rule
   main-is:             Main.hs
+  ghc-options:         -threaded -prof -fprof-auto -rtsopts
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10, 
