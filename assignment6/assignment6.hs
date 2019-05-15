@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 import Data.List (foldl')
+import Test.QuickCheck (quickCheck, forAll, choose)
+
 
 {-
   Exercise 1
@@ -91,7 +93,10 @@ ruler =
   in interleaveStreams (streamRepeat 0) (streamMap largestPower2 (streamFromSeed (+2) 2))
 
 {- 
-  Exercise 6
+  Exercise 6 (optional)
+  I implemented Fibonacci using a generating function that generates a 
+  power series - represented as an infinite sequence using an infinite sream, 
+  where each element represents a coefficient of a term in a power series
 -}
 x :: Stream Integer
 x = Cons 0 (Cons 1 (streamRepeat 0))
@@ -116,3 +121,53 @@ instance Fractional (Stream Integer) where
     
 fibs3 :: Stream Integer
 fibs3 = x / (1 - x - x^2)
+
+{- 
+  Exercise 7 (optional)
+  I implemented Fibonacci, but in O(logN) runtime using matrices. The crux of  
+  this is that Haskell already uses binary exponentiation when raising an 
+  instance of a Num type (using the ^ operator) using the (*) defined method 
+  on the Num type. Binary exponentiation goes like so:
+    x^n = (x^(n/2))^2 when n is even
+    x^n = x * (x^((n-1)/2))^2 when n is even
+-}
+data Matrix = Matrix Integer Integer Integer Integer
+instance Num (Matrix) where
+  (*) (Matrix aa1 ab1 ba1 bb1) (Matrix aa2 ab2 ba2 bb2) = 
+    Matrix 
+      ((*) aa1 aa2 + (*) ab1 ba2) 
+      ((*) aa1 ab2 + (*) ab1 bb2)
+      ((*) ba1 aa2 + (*) bb1 ba2) 
+      ((*) ba1 ab2 + (*) bb1 bb2)
+      
+fib4 :: Integer -> Integer
+fib4 0 = 0 
+fib4 n = case ((Matrix 1 1 1 0) ^ n) of Matrix _ a _ _ -> a
+
+
+main = 
+  let 
+    fib4answer :: Integer -> Integer
+    fib4answer nthTerm = fib4 nthTerm
+    
+    fib3answer :: Integer -> Integer
+    fib3answer nthTerm = (streamToList fibs3) !! fromIntegral nthTerm
+    
+    fib2answer :: Integer -> Integer
+    fib2answer nthTerm = fibs2 !! fromIntegral nthTerm
+    
+    fib1answer :: Integer -> Integer
+    fib1answer nthTerm = fibs1 !! fromIntegral nthTerm
+    
+    testFibs :: Integer -> Bool
+    testFibs n = fib4answer n == fib3answer n
+        && fib3answer n == fib2answer n 
+        && fib2answer n == fib1answer n
+        
+    testFib4AndFib3 :: Integer -> Bool
+    testFib4AndFib3 n = fib4answer (abs n) == fib3answer (abs n)
+    
+  in do {
+    quickCheck (forAll (choose (0, 10)) testFibs);
+    quickCheck testFib4AndFib3
+  }
